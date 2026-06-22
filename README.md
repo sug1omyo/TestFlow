@@ -67,13 +67,22 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-5. Run the API:
+5. Install frontend dependencies once:
+
+```powershell
+cd ..\frontend
+npm install
+cd ..\backend
+```
+
+6. Run the API:
 
 ```powershell
 uvicorn app.main:app --reload
 ```
 
 The API runs at `http://127.0.0.1:8000`.
+In development, the backend also starts the frontend automatically and opens `http://127.0.0.1:5173`.
 
 ## Run Frontend
 
@@ -87,3 +96,5 @@ The web app runs at `http://127.0.0.1:5173`.
 
 If the backend is not running, the frontend can still show demo data locally.
 
+You can disable automatic frontend startup by setting `AUTO_START_FRONTEND=false` in `backend/.env`.
+You can disable automatic browser opening by setting `AUTO_OPEN_BROWSER=false`.

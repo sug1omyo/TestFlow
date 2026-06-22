@@ -68,6 +68,10 @@
     @apply bg-red-50 text-danger;
   }
 
+  .badge-purple {
+    @apply bg-violet-50 text-violet-700;
+  }
+
   .badge-muted {
     @apply bg-slate-100 text-muted;
   }
@@ -92,4 +96,3 @@
     @apply bg-red-50 text-danger;
   }
 }
-

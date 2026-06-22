@@ -19,7 +19,7 @@ import { api } from './api'
 const demoProjects = [
   {
     id: 1,
-    name: 'Web quan ly ban hang',
+    name: 'Sales Management Website',
     description: 'Demo project for sales management website',
     status: 'Active',
     created_at: '2026-06-17T08:00:00',
@@ -31,12 +31,12 @@ const demoTestCases = [
     id: 1,
     test_case_code: 'TC-001',
     project_id: 1,
-    module_name: 'Dang nhap',
-    title: 'Kiem tra dang nhap sai mat khau',
-    precondition: 'User da ton tai trong he thong',
-    test_steps: 'Nhap username dung, password sai, bam Dang nhap',
-    expected_result: 'He thong hien thong bao sai mat khau',
-    actual_result: 'Khong hien thong bao loi',
+    module_name: 'Login',
+    title: 'Verify failed login with an incorrect password',
+    precondition: 'The user account already exists in the system',
+    test_steps: 'Enter a valid username, enter an incorrect password, then click Login',
+    expected_result: 'The system shows an incorrect password message',
+    actual_result: 'No error message is displayed',
     priority: 'High',
     status: 'Fail',
     created_at: '2026-06-17T09:00:00',
@@ -49,11 +49,11 @@ const demoBugs = [
     bug_code: 'BUG-001',
     project_id: 1,
     test_case_id: 1,
-    title: 'Khong hien thong bao sai mat khau',
-    description: 'Login form khong phan hoi khi nhap sai mat khau',
-    steps_to_reproduce: 'Mo man hinh login, nhap password sai, bam Dang nhap',
-    expected_result: 'Hien thong bao sai mat khau',
-    actual_result: 'Form khong hien thong bao',
+    title: 'Incorrect password message is not displayed',
+    description: 'The login form does not respond when an incorrect password is entered',
+    steps_to_reproduce: 'Open the login screen, enter an incorrect password, then click Login',
+    expected_result: 'An incorrect password message is displayed',
+    actual_result: 'No message is displayed by the form',
     severity: 'Major',
     priority: 'High',
     status: 'New',
@@ -151,7 +151,7 @@ function App() {
         setOffline(true)
         return
       }
-      throw new Error('Sai tai khoan hoac mat khau')
+      throw new Error('Invalid username or password')
     }
   }
 
@@ -244,7 +244,7 @@ function App() {
         <header className="sticky top-0 z-10 border-b border-line bg-white/95 backdrop-blur">
           <div className="flex min-h-16 flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between lg:px-8">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted">He thong quan ly Test Case & Bug Report</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">Test Case & Bug Report Management System</p>
               <h2 className="text-2xl font-semibold">{pageTitle(activePage)}</h2>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -269,7 +269,7 @@ function App() {
 
         {offline && (
           <div className="mx-4 mt-4 rounded border border-warning/30 bg-amber-50 px-4 py-3 text-sm text-warning lg:mx-8">
-            Backend chua ket noi duoc. Dang dung du lieu demo cuc bo.
+            The backend is not connected. Local demo data is being used.
           </div>
         )}
 
@@ -384,9 +384,38 @@ function Dashboard({ summary, projects, testCases, bugs }) {
         <Metric icon={CheckCircle2} label="Fixed bugs" value={summary.fixed_bugs} tone="success" />
       </div>
       <div className="grid gap-6 xl:grid-cols-3">
-        <PreviewList title="Projects moi" rows={projects} empty="Chua co project" render={(item) => <RowTitle title={item.name} meta={item.status} />} />
-        <PreviewList title="Test case moi" rows={testCases} empty="Chua co test case" render={(item) => <RowTitle title={item.title} meta={`${item.test_case_code} - ${item.status}`} />} />
-        <PreviewList title="Bug moi" rows={bugs} empty="Chua co bug" render={(item) => <RowTitle title={item.title} meta={`${item.bug_code} - ${item.status}`} />} />
+        <PreviewList
+          title="Recent Projects"
+          rows={projects}
+          empty="No projects yet"
+          render={(item) => <RowTitle title={item.name} status={item.status} date={item.created_at} />}
+        />
+        <PreviewList
+          title="Recent Test Cases"
+          rows={testCases}
+          empty="No test cases yet"
+          render={(item) => (
+            <RowTitle
+              title={item.title}
+              code={item.test_case_code}
+              status={item.status}
+              date={item.created_at}
+            />
+          )}
+        />
+        <PreviewList
+          title="Recent Bugs"
+          rows={bugs}
+          empty="No bugs yet"
+          render={(item) => (
+            <RowTitle
+              title={item.title}
+              code={item.bug_code}
+              status={item.status}
+              date={item.created_at}
+            />
+          )}
+        />
       </div>
     </div>
   )
@@ -398,7 +427,7 @@ function ProjectsPage({ projects, onAdd, onEdit, onDelete }) {
       <Table
         headers={['Name', 'Description', 'Status', 'Created']}
         rows={projects}
-        empty="Chua co project."
+        empty="No projects yet."
         render={(item) => [
           item.name,
           item.description || '-',
@@ -418,7 +447,7 @@ function TestCasesPage({ projects, testCases, onAdd, onEdit, onDelete }) {
       <Table
         headers={['Code', 'Project', 'Module', 'Title', 'Priority', 'Status']}
         rows={testCases}
-        empty="Chua co test case."
+        empty="No test cases yet."
         render={(item) => [
           item.test_case_code,
           findProjectName(projects, item.project_id),
@@ -440,7 +469,7 @@ function BugsPage({ projects, testCases, bugs, onAdd, onEdit, onDelete }) {
       <Table
         headers={['Code', 'Project', 'Test Case', 'Title', 'Severity', 'Priority', 'Status']}
         rows={bugs}
-        empty="Chua co bug."
+        empty="No bugs yet."
         render={(item) => [
           item.bug_code,
           findProjectName(projects, item.project_id),
@@ -687,11 +716,15 @@ function PreviewList({ title, rows, empty, render }) {
   )
 }
 
-function RowTitle({ title, meta }) {
+function RowTitle({ title, code, status, date }) {
   return (
     <div>
       <p className="font-medium">{title}</p>
-      <p className="mt-1 text-sm text-muted">{meta}</p>
+      <div className={`mt-2 grid items-center gap-3 text-sm text-muted ${code ? 'grid-cols-[minmax(0,1fr)_auto_auto]' : 'grid-cols-[minmax(0,1fr)_auto]'}`}>
+        {code ? <span className="min-w-0 truncate">{code}</span> : <div><Badge value={status} /></div>}
+        {code && <Badge value={status} />}
+        <time className="shrink-0 text-right" dateTime={date || undefined}>{formatDate(date)}</time>
+      </div>
     </div>
   )
 }
@@ -708,12 +741,12 @@ function Badge({ value }) {
     Fail: 'badge-danger',
     Blocked: 'badge-warning',
     'Not Run': 'badge-muted',
-    New: 'badge-danger',
-    'In Progress': 'badge-primary',
-    Fixed: 'badge-success',
-    Closed: 'badge-muted',
-    Rejected: 'badge-warning',
-    Low: 'badge-muted',
+    New: 'badge-primary',
+    'In Progress': 'badge-warning',
+    Fixed: 'badge-purple',
+    Closed: 'badge-success',
+    Rejected: 'badge-danger',
+    Low: 'badge-success',
     Medium: 'badge-primary',
     High: 'badge-warning',
     Critical: 'badge-danger',
@@ -757,7 +790,7 @@ function findTestCaseCode(testCases, id) {
 
 function formatDate(value) {
   if (!value) return '-'
-  return new Intl.DateTimeFormat('vi-VN', {
+  return new Intl.DateTimeFormat('en-US', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

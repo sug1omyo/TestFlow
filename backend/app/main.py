@@ -4,11 +4,18 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.config import get_settings
-from app.database import Base, SessionLocal, engine, get_db
+from app.database import Base, SessionLocal, engine, ensure_unicode_columns, get_db
+from app.dev_frontend import FrontendDevServer
 
 settings = get_settings()
+frontend_dev_server = FrontendDevServer(
+    enabled=settings.auto_start_frontend,
+    open_browser=settings.auto_open_browser,
+    url=settings.frontend_url,
+)
 
 Base.metadata.create_all(bind=engine)
+ensure_unicode_columns()
 with SessionLocal() as seed_db:
     crud.seed_users(seed_db)
 
@@ -21,6 +28,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.add_event_handler("startup", frontend_dev_server.start)
+app.add_event_handler("shutdown", frontend_dev_server.stop)
 
 
 @app.get("/health")
